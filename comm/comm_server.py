@@ -5,6 +5,10 @@ import cPickle as Pickle
 from DNA_APP.constants import constant
 from DTs.Dtree_server import Eval
 import json
+<<<<<<< HEAD
+=======
+
+>>>>>>> 34f931e56364f71f9084a3215c5a72456176776a
 
 KEYFILE = constant.SERVER_KEY_FILE_PATH
 CERTFILE = constant.SERVER_CERT_FILE_PATH
