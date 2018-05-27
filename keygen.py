@@ -5,6 +5,7 @@ correction words for each of the FSS tree levels
 Author: Lavi. Lazarovitz
 Date: 10/1/18
 
+TODO: Check all zero seed.
 """
 
 import random
@@ -53,7 +54,7 @@ def gen(sec_param, a):
         Sl_Tl_Sr_Tr_1 = "{0:b}".format(prg(seed_srv_1)).zfill(2 * sec_param + 2)
 
         # Using Left = 0, Right = 1
-        # The S_T dictionary is used to store the different parts of the each tree's key
+        # The S_T dictionary is used to store the different parts of each tree's key
         # S_T['0'],S_T['1'] - are the two trees
         # S_T[]['0'],S_T[]['1'] - are the different nodes (left,right) in each tree
         # S_T['']['']['S'],S_T['']['']['T'] - are either the seed or the t flag for each node

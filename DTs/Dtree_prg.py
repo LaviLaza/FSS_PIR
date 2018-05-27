@@ -8,7 +8,7 @@ Date: 10/1/18
 
 import random
 
-def prg(seed):
+def prg(seed, k = 0):
 
     """The function is used as a Pseudo-Random Generator. It will extend the length of the seed to 2*seed + 2.
 
@@ -26,8 +26,7 @@ def prg(seed):
     # Setting the seed
     random.seed(seed)
 
-    # Returning 2*(seed's length)  + 2 pseudo random bits
-    return random.getrandbits(2*(seed.bit_length()) + 2)
+    if k == 0:
+        return random.getrandbits(seed.bit_length())
 
-if __name__ == "__main__":
-   print prg(100)
+    return random.getrandbits(k*(seed.bit_length()) + k)
