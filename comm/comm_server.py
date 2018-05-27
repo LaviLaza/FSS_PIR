@@ -5,7 +5,6 @@ import cPickle as Pickle
 from DNA_APP.constants import constant
 from DTs.Dtree_server import Eval
 import json
-from bitstring import BitArray
 
 KEYFILE = constant.SERVER_KEY_FILE_PATH
 CERTFILE = constant.SERVER_CERT_FILE_PATH
@@ -41,17 +40,16 @@ def dna_server(address):
 
     s_ssl = ssl.wrap_socket(s, keyfile=KEYFILE, certfile=CERTFILE, server_side=True)
 
-    while True:
-        try:
-            (c,a) = s_ssl.accept()
-            print('Got connection', c, a)
-            data = get_data(c)
-            unpickled_data = Pickle.loads(data)
-            results = dna_analysis(unpickled_data)
-            print results
-            send_response(c,results)
-        except socket.error as e:
-            print('Error: {0}'.format(e))
+    try:
+        (c,a) = s_ssl.accept()
+        print('Got connection', c, a)
+        data = get_data(c)
+        unpickled_data = Pickle.loads(data)
+        results = dna_analysis(unpickled_data)
+        print results
+        send_response(c,results)
+    except socket.error as e:
+        print('Error: {0}'.format(e))
 
 def dna_analysis(data_list):
 

@@ -28,9 +28,9 @@ class Comm_client(threading.Thread):
 
         # Require a certificate from the server. We used a self-signed certificate
         # so here ca_certs must be the server certificate itself.
-        ssl_sock = ssl.wrap_socket(s,cert_reqs=ssl.CERT_REQUIRED, ca_certs='/Users/admin1/Documents/keys/cert.pem')
+        ssl_sock = ssl.wrap_socket(s,cert_reqs=ssl.CERT_REQUIRED, ca_certs=constant.SERVER_CERT_FILE_PATH)
 
-        ssl_sock.connect(('127.0.0.1', self.port))
+        ssl_sock.connect((self.server_address, self.port))
 
         pickled_data = Pickle.dumps([self.tree_root,self.seed,self.tbit,self.sec_param])
 

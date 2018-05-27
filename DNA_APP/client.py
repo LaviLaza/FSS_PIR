@@ -71,7 +71,7 @@ class DNA_App_Client:
 
             current_node = queue.get()
 
-            print "current index: %d,  max length: %d" % (current_node.index, len(self.dna_bitstring))
+            #print "current index: %d,  max length: %d" % (current_node.index, len(self.dna_bitstring))
 
             left_coin = self.flip_coin()
             right_coin = self.flip_coin()
