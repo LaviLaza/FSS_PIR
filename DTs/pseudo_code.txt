@@ -1,0 +1,118 @@
+Decision trees pseudo code
+
+TODO:
+# test
+# Check CWs
+# Set meeting on Sunday.
+# infrastructure implementation.
+
+generate_DT( tree root):
+
+    generate 2 seeds: s0, s1
+    add both seeds to root.seed -> [s0,s1]
+    add t0, t1 to Tbit -> [t0,t1]
+
+    queue(root)
+
+    while queue not empty:
+        node = queue.pop()
+        calculate(node)
+        if not node.left_child.is_leaf:
+            queue.push(node.left_child)
+        if not node.right_child.is_leaf:
+            queue.push(node.right_child)
+
+        node.seed = node.Tbit = node.left_bit = node.right_bit = None
+
+    return tree
+
+
+calculate(node):
+    L[0][0],L_T[0][0],L[0][1],L_T[0][1],R[0][0],R_T[0][0],R[0][1],R_T[0][1] = prg(node.seed[0])
+    L[1][0],L_T[1][0],L[1][1],L_T[1][1],R[1][0],R_T[1][0],R[1][1],R_T[1][1] = prg(node.seed[1])
+
+    #must be masked by random word
+
+    CW[0][S][L][~node.left_bit] = L[1][~node.left_bit] + random
+    CW[1][S][L][~node.left_bit] = L[0][~node.left_bit] + same random
+
+    CW[0][T][L][~node.left_bit] = L_T[1][~node.left_bit] + random
+    CW[1][T][L][~node.left_bit] = L_T[0][~node.left_bit] + same random
+
+
+    CW[0][S][R][~node.right_bit] = R[1][~node.right_bit] + random
+    CW[1][S][R][~node.right_bit] = R[0][~node.right_bit] + same random
+
+    CW[0][T][R][~node.right_bit] = R_T[1][~node.right_bit] + random
+    CW[1][T][R][~node.right_bit] = R_T[0][~node.right_bit] + same random
+
+    if node.left.is_leaf:
+        CW[0][S][L][node.left_bit] = L[1][node.left_bit] ^ node.value + random
+        CW[1][S][L][node.left_bit] = L[0][node.left_bit] + same random
+    else:
+        CW[0][S][L][node.left_bit] = random value 0
+        CW[1][S][L][node.left_bit] = random value 1
+
+        CW[0][T][L][node.left_bit] = random value + L_T[0][node.left_bit]
+        CW[1][T][L][node.left_bit] = random value + L_T[1][node.left_bit] ^ 1
+
+        node.left_child.seed = [L[0][node.left_bit] ^ CW[t0][S][L][node.left_bit],
+                                L[1][node.left_bit] ^ CW[t1][S][L][node.left_bit]]
+        node.left_child.Tbit = [L_T[0][node.left_bit] ^ CW[t0][T][L][node.left_bit],
+                                L_T[1][node.left_bit] ^ CW[t1][T][L][node.left_bit]]
+
+    if node.right.is_leaf:
+        CW[0][S][R][node.right_bit] = R[1][node.right_bit] ^ node.value + random
+        CW[1][S][R][node.right_bit] = R[0][node.right_bit] + same random
+    else:
+        CW[0][S][R][node.right_bit] = random value 0
+        CW[1][S][R][node.right_bit] = random value 1
+
+        #Consider the actual tbit at that node
+
+        CW[0][T][R][node.right_bit] = random value + L_T[1][node.right_bit]
+        CW[1][T][R][node.right_bit] = random value ^ 1 +  L_T[0][node.right_bit]
+
+        node.right_child.seed = [R[0][node.right_bit] ^ CW[t0][S][R], R[1][node.right_bit] ^ CW[t1][S][R]]
+        node.right_child.Tbit = [R_T[0][node.right_bit] ^ CW[t0][T][R], R_T[1][node.right_bit] ^ CW[t1][T][R]]
+
+
+     node.cw = CW
+
+
+
+Eval(x, tree, seed, T):
+
+    node = tree.root
+    node.seed = seed
+    node.Tbit = T
+
+    SUM = 0
+
+    queue(node)
+
+    while queue not empty:
+        node = queue.pop()
+
+        L[0],L_T[0],L[1],L_T[1],R[0],R_T[0],R[1],R_T[1] = prg(node.seed)
+
+        S_L = L[x[node.index]] ^ node.cw[node.Tbit][S][L][x[node.index]]
+        T_L = L_T[x[node.index]] ^ node.cw[node.Tbit][T][L][x[node.index]]
+
+        S_R = R[x[node.index]] ^ node.cw[node.Tbit][S][R][x[node.index]]
+        T_R = R_T[x[node.index]] ^ node.cw[node.Tbit][T][R][x[node.index]]
+
+        if node.left_child.is_leaf:
+            SUM += S_L
+        else:
+            node.left_child.seed = S_L
+            node.left_child.Tbit = T_L
+            queue.push(node.left_child)
+
+        if node.right_child.is_leaf:
+            SUM += R_L
+        else:
+            node.right_child.seed = S_R
+            node.left_child.Tbit = T_R
+            queue.push(node.right_child)
+

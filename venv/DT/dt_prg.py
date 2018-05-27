@@ -27,7 +27,7 @@ def prg(seed):
     random.seed(seed)
 
     # Returning 2*(seed's length)  + 2 pseudo random bits
-    return random.getrandbits(2*(seed.bit_length()) + 2)
+    return random.getrandbits(2*(seed.bit_length()) + 4)
 
 if __name__ == "__main__":
    print prg(100)

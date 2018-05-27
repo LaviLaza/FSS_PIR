@@ -3,12 +3,12 @@ from dt_server import eval
 
 
 def main():
-    k0,k1 = gen(10,'1010')
+    k0,k1 = gen(10,'10111')
     # print k0
     # print k1
 
-    e0 = eval('0',k0,'1111',10)
-    e1 = eval('1',k1,'1111',10)
+    e0 = eval('0',k0,'11111',10)
+    e1 = eval('1',k1,'11111',10)
 
     print e0
     print e1

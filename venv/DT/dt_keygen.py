@@ -90,7 +90,7 @@ def gen(sec_param, a):
         contribution_bit = {}
         # Left correction contribution bit is dependent on the decision path
         contribution_bit['0'] = S_T['0']['0']['L'] ^ S_T['1']['0']['L'] ^ Keep_Lose
-        # Right correction contribution bit is always just xor between the contribution
+        # Righ7ct correction contribution bit is always just xor between the contribution
         # bits (when 1 is the interval flag)
         contribution_bit['1'] = S_T['0']['1']['R'] ^ S_T['1']['1']['R']
 

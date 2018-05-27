@@ -62,7 +62,7 @@ def eval(b,K,x,sec_param):
 
         C = {}
         # Calcaulating the contribution based on the T flag
-        C['0'] = S_T['0']['L'] ^ BitArray(bin=((K[i]['L'] * abs(T_bit.int)).bin).zfill(1))
+        C['0'] = r ^ BitArray(bin=((K[i]['L'] * abs(T_bit.int)).bin).zfill(1))
         C['1'] = S_T['1']['R'] ^ BitArray(bin=((K[i]['R'] * abs(T_bit.int)).bin).zfill(1))
 
         # Adding the contribution to the contribution array
