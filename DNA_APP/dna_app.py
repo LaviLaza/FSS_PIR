@@ -45,9 +45,20 @@ def main():
     # try:
     comm_client_1 = Comm_client(args['server_ips'][0], tree_root=secret_share_tree, seed=seed0,
                                     tbit='0', sec_param=constant.SEC_PARAM)
+    comm_client_2 = Comm_client(args['server_ips'][1], tree_root=secret_share_tree, seed=seed1,
+                                    tbit='1', sec_param=constant.SEC_PARAM)
     comm_client_1.start()
-    # comm_client_2 = Comm_client(args['server_ips'][1], tree_root=secret_share_tree, seed=seed1,
-    #                                 tbit='1', sec_param=constant.SEC_PARAM)
+    comm_client_2.start()
+
+    server1_analysis = comm_client_1.analysis
+    server2_analysis = comm_client_2.analysis
+
+    for key, index in zip(server1_analysis,range(1,len(server1_analysis))):
+        analysis1 = BitArray(bin=server1_analysis[key])
+        analysis2 = BitArray(bin=server2_analysis[key])
+
+        print "The risk of being ill of illness # %d is: %d" %(index,(analysis1 ^ analysis2).int)
+
 
     # except Exception as e:
     #     logging.error("Something went wrong while communicating with servers")

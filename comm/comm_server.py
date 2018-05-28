@@ -5,6 +5,7 @@ import cPickle as Pickle
 from DNA_APP.constants import constant
 from DTs.Dtree_server import Eval
 import json
+from struct import unpack, pack
 
 KEYFILE = constant.SERVER_KEY_FILE_PATH
 CERTFILE = constant.SERVER_CERT_FILE_PATH
@@ -20,16 +21,27 @@ def convert_dna_to_bitstring(check):
 
 
 def get_data(s):
-    data = b''
-    while True:
-        chunk = s.recv(8192)
-        if chunk == b'':
-            break
-        data += chunk
 
-    s.send(b'This is a response.')
+    try:
+        data_size = s.recv(8)
+        (length,) = unpack('>Q', data_size)
+        data = b''
+        while len(data) < length:
+            to_read = length - len(data)
+            data += s.recv(4096 if to_read > 4096 else to_read)
+    except Exception as e:
+        print e.message()
+
+
+    # while True:
+    #     chunk = s.recv(8192)
+    #     if chunk == b'':
+    #         break
+    #     data += chunk
+
+    #s.send(b'This is a response.')
     print('Connection closed')
-    s.close()
+    #s.close()
     return data
 
 def dna_server(address):
@@ -40,16 +52,19 @@ def dna_server(address):
 
     s_ssl = ssl.wrap_socket(s, keyfile=KEYFILE, certfile=CERTFILE, server_side=True)
 
-    try:
-        (c,a) = s_ssl.accept(1)
-        print('Got connection', c, a)
-        data = get_data(c)
-        unpickled_data = Pickle.loads(data)
-        results = dna_analysis(unpickled_data)
-        print results
-        send_response(c,results)
-    except socket.error as e:
-        print('Error: {0}'.format(e))
+    #try:
+    (c,a) = s_ssl.accept()
+    print('Got connection', c, a)
+    data = get_data(c)
+    #print data
+    unpickled_data = Pickle.loads(data)
+    print unpickled_data
+    results = dna_analysis(unpickled_data)
+    print results
+    send_response(c,results)
+    #except socket.error as e:
+     #   print('Error: {0}'.format(e))
+    c.close()
 
 def dna_analysis(data_list):
 
@@ -69,6 +84,9 @@ def send_response(client_sock, results):
 
     pickled_response = Pickle.dumps(results)
     print len(pickled_response)
+
+    length = pack('>Q', len(pickled_response))
+    client_sock.sendall(length)
     client_sock.sendall(pickled_response)
 
 

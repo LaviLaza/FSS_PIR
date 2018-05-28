@@ -3,6 +3,7 @@ import socket, ssl
 from DNA_APP.constants import constant
 import cPickle as Pickle
 import threading
+from struct import pack, unpack
 
 class Comm_client(threading.Thread):
 
@@ -14,10 +15,9 @@ class Comm_client(threading.Thread):
         self.seed = seed
         self.tbit = tbit
         self.sec_param = sec_param
+        self.analysis = None
 
         self.port = constant.PORT
-
-        self.run()
 
 
 
@@ -36,22 +36,28 @@ class Comm_client(threading.Thread):
 
         print "size of pickled data is: %d" %(len(pickled_data))
 
+        length = pack('>Q', len(pickled_data))
+        ssl_sock.sendall(length)
         ssl_sock.sendall(pickled_data)
 
         results = self.get_data(ssl_sock)
+        results = Pickle.loads(results)
 
-        #print results
+        print results
+        self.analysis = results
 
         ssl_sock.close()
 
 
     def get_data(self, s):
+
+        data_size = s.recv(8)
+        (length,) = unpack('>Q', data_size)
         data = b''
-        while True:
-            chunk = s.recv(50)
-            if chunk == b'':
-                break
-            data += chunk
+        while len(data) < length:
+            to_read = length - len(data)
+            data += s.recv(4096 if to_read > 4096 else to_read)
+
 
         print('Connection closed')
         s.close()
