@@ -83,7 +83,7 @@ class DNA_App_Client:
             if current_node.left_bit == self.dna_bitstring[current_node.index]:
                 left_true_path_flag = True
                 if (current_node.index % 2) and current_node.true_path_flag:
-                    left_value = current_node.value + 1
+                    left_value = current_node.value + 2
                 else:
                     left_value = current_node.value
 
@@ -91,7 +91,7 @@ class DNA_App_Client:
             else:
                 right_true_path_flag = True
                 if (current_node.index % 2) and current_node.true_path_flag:
-                    right_value = current_node.value + 1
+                    right_value = current_node.value + 2
                 else:
                     right_value = current_node.value
 
