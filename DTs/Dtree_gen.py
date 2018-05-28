@@ -31,6 +31,8 @@ def generate_DT(tree_root, sec_param):
         node.Tbit = None
         node.left_bit = None
         node.right_bit = None
+        node.value = None
+        node.true_path_flag = None
 
     tree_root.seed = root_seeds
 

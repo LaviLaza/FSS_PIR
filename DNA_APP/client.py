@@ -76,18 +76,33 @@ class DNA_App_Client:
             left_coin = self.flip_coin()
             right_coin = self.flip_coin()
 
+            left_true_path_flag = False
+            right_true_path_flag = False
+
 
             if current_node.left_bit == self.dna_bitstring[current_node.index]:
-                left_value = current_node.value + 1
+                left_true_path_flag = True
+                if (current_node.index % 2) and current_node.true_path_flag:
+                    left_value = current_node.value + 1
+                else:
+                    left_value = current_node.value
+
                 right_value = current_node.value
             else:
-                right_value = current_node.value + 1
+                right_true_path_flag = True
+                if (current_node.index % 2) and current_node.true_path_flag:
+                    right_value = current_node.value + 1
+                else:
+                    right_value = current_node.value
+
                 left_value = current_node.value
 
             left_node = Node(index=current_node.index + 1, is_leaf=False, left_bit=left_coin.bin,
-                                          right_bit=(~left_coin).bin, value=left_value)
+                                          right_bit=(~left_coin).bin, value=left_value,
+                                            true_path_flag=left_true_path_flag)
             right_node = Node(index=current_node.index + 1, is_leaf=False, left_bit=right_coin.bin,
-                                          right_bit=(~right_coin).bin, value=right_value)
+                                          right_bit=(~right_coin).bin, value=right_value,
+                                          true_path_flag=right_true_path_flag)
 
             if current_node.index == (len(self.dna_bitstring) - 1):
                 left_node.value = int(round(float(left_node.value) / len(self.dna_bitstring),2) * 100)

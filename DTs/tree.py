@@ -2,10 +2,11 @@
 from bitstring import BitArray
 
 class Node:
-    def __init__(self,  left_bit = None, right_bit = None,seed = None, Tbit = None, index = None, is_leaf = False, value = 0):
+    def __init__(self,  left_bit = None, right_bit = None,seed = None, Tbit = None, index = None, is_leaf = False,
+                 value = 0, true_path_flag = False):
         self.seed = seed
         self.Tbit = Tbit
-
+        self.true_path_flag = true_path_flag
         # index should be a number starting at 0 (must be set for none leaf nodes
         self.index = index
         self.is_leaf = is_leaf
