@@ -56,11 +56,11 @@ def main():
     server1_analysis = comm_client_1.analysis
     server2_analysis = comm_client_2.analysis
 
-    for key, index in zip(server1_analysis,range(1,len(server1_analysis))):
+    for key, index in zip(server1_analysis,range(0,len(server1_analysis))):
         analysis1 = BitArray(bin=server1_analysis[key])
         analysis2 = BitArray(bin=server2_analysis[key])
 
-        print "The risk of being ill of illness # %d is: %d percent. " %(index,(analysis1 ^ analysis2).int)
+        print "The risk of being ill of illness # %d is: %d percent. " %(index + 1,(analysis1 ^ analysis2).int)
 
     # except Exception as e:
     #     logging.error("Something went wrong while communicating with servers")
