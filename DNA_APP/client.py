@@ -75,19 +75,32 @@ class DNA_App_Client:
             left_value = current_node.value
             right_value = current_node.value
 
-            if (current_node.index % 2):
-
-                if not (current_node.true_path_flag and (current_node.left_bit == self.dna_bitstring[current_node.index])):
+            if not current_node.left_bit == self.dna_bitstring[current_node.index]:
+                left_true_path_flag = False
+                if current_node.index % 2:
                     left_value += 1
-                    left_true_path_flag  = False
-                elif not (current_node.left_bit == self.dna_bitstring[current_node.index]):
-                    left_true_path_flag = False
+            elif not current_node.true_path_flag and current_node.index % 2:
+                left_value += 1
 
-                if not (current_node.true_path_flag and (current_node.right_bit == self.dna_bitstring[current_node.index])):
+            if not current_node.right_bit == self.dna_bitstring[current_node.index]:
+                right_true_path_flag = False
+                if current_node.index % 2:
                     right_value += 1
-                    right_true_path_flag  = False
-                elif (current_node.right_bit == self.dna_bitstring[current_node.index]):
-                    right_true_path_flag = False
+            elif not current_node.true_path_flag and current_node.index % 2:
+                right_value += 1
+
+
+            if not (current_node.true_path_flag and (current_node.left_bit == self.dna_bitstring[current_node.index])):
+                left_value += 1
+                left_true_path_flag  = False
+            elif not (current_node.left_bit == self.dna_bitstring[current_node.index]):
+                left_true_path_flag = False
+
+            if not (current_node.true_path_flag and (current_node.right_bit == self.dna_bitstring[current_node.index])):
+                right_value += 1
+                right_true_path_flag  = False
+            elif (current_node.right_bit == self.dna_bitstring[current_node.index]):
+                right_true_path_flag = False
 
             left_node = Node(index=current_node.index + 1, is_leaf=False, left_bit=left_coin.bin,
                              right_bit=(~left_coin).bin, value=left_value,
@@ -97,10 +110,8 @@ class DNA_App_Client:
                               true_path_flag=right_true_path_flag)
 
             if current_node.index == (len(self.dna_bitstring) - 1):
-                if current_node.left_bit == self.dna_bitstring[current_node.index]:
-                    left_node.value = 1
-                if current_node.right_bit == self.dna_bitstring[current_node.index]:
-                    right_node.value = 1
+                left_node.value = 1
+                right_node.value = 1
 
                 left_node.is_leaf = True
                 right_node.is_leaf = True
