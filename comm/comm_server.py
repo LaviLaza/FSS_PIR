@@ -33,14 +33,7 @@ def get_data(s):
         print e.message()
 
 
-    # while True:
-    #     chunk = s.recv(8192)
-    #     if chunk == b'':
-    #         break
-    #     data += chunk
-
-    #s.send(b'This is a response.')
-    print('Connection closed')
+    #print('Connection closed')
     #s.close()
     return data
 

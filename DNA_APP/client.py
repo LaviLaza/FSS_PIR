@@ -48,6 +48,84 @@ class DNA_App_Client:
 
         return dna_bitstring
 
+    def build_d_distance_trees(self, distance):
+        # The leaf values at every path resulting in a DNA string with distance less than d
+        # The trees support a single match on the server side - requires modifications to checks.json
+
+        queue = Queue.Queue()
+
+        coin = self.flip_coin()
+
+        tree_root = Node(index=0, is_leaf=False, left_bit=coin.bin, right_bit=(~coin).bin, value=0)
+
+        queue.put(tree_root)
+
+        while not queue.empty():
+
+            current_node = queue.get()
+
+            #print "current index: %d,  max length: %d" % (current_node.index, len(self.dna_bitstring))
+
+            left_coin = self.flip_coin()
+            right_coin = self.flip_coin()
+
+            left_true_path_flag = True
+            right_true_path_flag = True
+
+            left_value = current_node.value
+            right_value = current_node.value
+
+            if (current_node.index % 2):
+
+                if not (current_node.true_path_flag and (current_node.left_bit == self.dna_bitstring[current_node.index])):
+                    left_value += 1
+                    left_true_path_flag  = False
+                elif not (current_node.left_bit == self.dna_bitstring[current_node.index]):
+                    left_true_path_flag = False
+
+                if not (current_node.true_path_flag and (current_node.right_bit == self.dna_bitstring[current_node.index])):
+                    right_value += 1
+                    right_true_path_flag  = False
+                elif (current_node.right_bit == self.dna_bitstring[current_node.index]):
+                    right_true_path_flag = False
+
+            left_node = Node(index=current_node.index + 1, is_leaf=False, left_bit=left_coin.bin,
+                             right_bit=(~left_coin).bin, value=left_value,
+                             true_path_flag=left_true_path_flag)
+            right_node = Node(index=current_node.index + 1, is_leaf=False, left_bit=right_coin.bin,
+                              right_bit=(~right_coin).bin, value=right_value,
+                              true_path_flag=right_true_path_flag)
+
+            if current_node.index == (len(self.dna_bitstring) - 1):
+                if current_node.left_bit == self.dna_bitstring[current_node.index]:
+                    left_node.value = 1
+                if current_node.right_bit == self.dna_bitstring[current_node.index]:
+                    right_node.value = 1
+
+                left_node.is_leaf = True
+                right_node.is_leaf = True
+
+            if left_value > distance:
+                left_node.value = 0
+                left_node.is_leaf = True
+            if right_value > distance:
+                right_node.value = 0
+                right_node.is_leaf = True
+
+            current_node.set_L_child(left_node)
+            current_node.set_R_child(right_node)
+
+            if not left_node.is_leaf:
+                queue.put(current_node.left_child)
+            if not right_node.is_leaf:
+                queue.put(current_node.right_child)
+
+            current_node.value = 0
+
+        root = generate_DT(tree_root, constant.SEC_PARAM)
+        return self.clean_tree(root)
+
+
     def build_secret_share_trees(self):
 
         # extract the current bit and push the root to the queue

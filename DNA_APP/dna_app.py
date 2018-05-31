@@ -24,14 +24,19 @@ def main():
                         datefmt='%m/%d/%Y %I:%M:%S %p',level=logging.INFO)
     logging.info('App started.')
     parser = argparse.ArgumentParser(description='DNA secret sharing app client')
-    parser.add_argument('-f',help='the full paht of the DNA file', required=True, dest='file_name')
+    parser.add_argument('-f',help='the full path of the DNA file', required=True, dest='file_name')
     parser.add_argument('-s', help='server 2 IP  - #.#.#.#',required=True, dest='server_ips',nargs=2)
+    parser.add_argument('-d', help='max distance off of the client DNA', dest='dist',required=False)
     args = vars(parser.parse_args())
-
+    print (args['dist'])
     dna = load_file(args['file_name'])
     try:
         Client = DNA_App_Client(dna)
-        secret_share_tree, seed0, seed1 = Client.build_secret_share_trees()
+        if args['dist']:
+            secret_share_tree, seed0, seed1 = Client.build_d_distance_trees(args['dist'])
+        else:
+            secret_share_tree, seed0, seed1 = Client.build_secret_share_trees()
+
 
     except InvalidDNAException:
         logging.error("The input DNA string is invalid, please check DNA string in file")
@@ -46,7 +51,7 @@ def main():
     comm_client_1 = Comm_client(args['server_ips'][0], tree_root=secret_share_tree, seed=seed0,
                                     tbit='0', sec_param=constant.SEC_PARAM)
     comm_client_2 = Comm_client(args['server_ips'][1], tree_root=secret_share_tree, seed=seed1,
-                                   tbit='1', sec_param=constant.SEC_PARAM)
+                                  tbit='1', sec_param=constant.SEC_PARAM)
     comm_client_1.start()
     comm_client_2.start()
 
@@ -61,7 +66,7 @@ def main():
         analysis2 = BitArray(bin=server2_analysis[key])
 
         print "The risk of being ill of illness # %d is: %d percent. " %(index + 1,(analysis1 ^ analysis2).int)
-
+        # print analysis1.int
     # except Exception as e:
     #     logging.error("Something went wrong while communicating with servers")
     #     print sys.exc_info()[0]
