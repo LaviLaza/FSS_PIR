@@ -16,8 +16,8 @@ class constant:
 
     SEC_PARAM = 10
 
-    CHECKS_FILE_PATH = '/home/ec2-user/FSS_PIR/DNA_APP/checks.json'
+    CHECKS_FILE_PATH = '../DNA_APP/checks.json'
 
-    SERVER_KEY_FILE_PATH = '/home/ec2-user/key.pem'
+    SERVER_KEY_FILE_PATH = '/Users/admin1/Documents/keys/key.pem'
 
-    SERVER_CERT_FILE_PATH = '/home/ec2-user/cert.pem'
+    SERVER_CERT_FILE_PATH = '/Users/admin1/Documents/keys/cert.pem'

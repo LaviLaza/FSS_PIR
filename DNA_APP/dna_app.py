@@ -52,23 +52,27 @@ def main():
                                     tbit='0', sec_param=constant.SEC_PARAM)
     comm_client_2 = Comm_client(args['server_ips'][1], tree_root=secret_share_tree, seed=seed1,
                                   tbit='1', sec_param=constant.SEC_PARAM)
-    comm_client_1.start()
+    # comm_client_1.start()
 
-    # comm_client_1.run()
-    # comm_client_2.run()
-    comm_client_2.start()
+    comm_client_1.run()
+    comm_client_2.run()
+    # comm_client_2.start()
 
-    comm_client_1.join()
-    comm_client_2.join()
+    # comm_client_1.join()
+    # comm_client_2.join()
 
     server1_analysis = comm_client_1.analysis
     server2_analysis = comm_client_2.analysis
 
-    for key, index in zip(server1_analysis,range(0,len(server1_analysis))):
-        analysis1 = BitArray(bin=server1_analysis[key])
-        analysis2 = BitArray(bin=server2_analysis[key])
+    analysis = (BitArray(bin=server1_analysis) ^ BitArray(bin=server2_analysis)).int
+    print 'The client DNA matches disease # : %d' %(analysis)
 
-        print "The risk of being ill of illness # %d is: %d percent. " %(index + 1,(analysis1 ^ analysis2).int)
+
+    # for key, index in zip(server1_analysis,range(0,len(server1_analysis))):
+    #     analysis1 = BitArray(bin=server1_analysis[key])
+    #     analysis2 = BitArray(bin=server2_analysis[key])
+    #
+    #     print "The risk of being ill of illness # %d is: %d percent. " %(index + 1,(analysis1 ^ analysis2).int)
         # print analysis1.int
     # except Exception as e:
     #     logging.error("Something went wrong while communicating with servers")

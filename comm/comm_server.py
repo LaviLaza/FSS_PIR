@@ -6,6 +6,7 @@ from DNA_APP.constants import constant
 from DTs.Dtree_server import Eval
 import json
 from struct import unpack, pack
+from bitstring import BitArray
 
 KEYFILE = constant.SERVER_KEY_FILE_PATH
 CERTFILE = constant.SERVER_CERT_FILE_PATH
@@ -53,25 +54,46 @@ def dna_server(address):
         #print data
         unpickled_data = Pickle.loads(data)
         print unpickled_data
-        results = dna_analysis(unpickled_data)
+        results = dna_analysis_single_result(unpickled_data)
         print results
         send_response(c,results)
         #except socket.error as e:
          #   print('Error: {0}'.format(e))
         c.close()
 
-def dna_analysis(data_list):
+def dna_analysis_single_result(data_list):
 
-    analysis_result = {}
+
 
     with open(constant.CHECKS_FILE_PATH,'rb') as check_file:
         checks = check_file.readline()
         checks_dict = json.loads(checks)
-    for check_name, check_dna in checks_dict.items():
+    max_check = max([int(i) for i in checks_dict.keys()])
+    analysis_sum = BitArray(int=0, length=data_list[3] * max_check)
+
+    for check_num, check_dna in checks_dict.items():
         check_bits = convert_dna_to_bitstring(check_dna)
         analysis = Eval(x=check_bits, tree_root=data_list[0], seed=data_list[1], T=data_list[2],
                         sec_param=data_list[3])
-        analysis_result[check_name] = analysis
+        print int(check_num)
+        analysis_sum ^= BitArray(int=(BitArray(bin=analysis).int * int(check_num)),length=data_list[3]  * max_check)
+
+    return analysis_sum.bin
+
+def dna_analysis_percentage(data_list):
+
+    analysis_result = {}
+
+
+    with open(constant.CHECKS_FILE_PATH,'rb') as check_file:
+        checks = check_file.readline()
+        checks_dict = json.loads(checks)
+
+    for check_num, check_dna in checks_dict.items():
+        check_bits = convert_dna_to_bitstring(check_dna)
+        analysis = Eval(x=check_bits, tree_root=data_list[0], seed=data_list[1], T=data_list[2],
+                        sec_param=data_list[3])
+        analysis_result[check_num] = analysis
     return analysis_result
 
 def send_response(client_sock, results):
