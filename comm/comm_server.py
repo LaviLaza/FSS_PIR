@@ -46,18 +46,19 @@ def dna_server(address):
     s_ssl = ssl.wrap_socket(s, keyfile=KEYFILE, certfile=CERTFILE, server_side=True)
 
     #try:
-    (c,a) = s_ssl.accept()
-    print('Got connection', c, a)
-    data = get_data(c)
-    #print data
-    unpickled_data = Pickle.loads(data)
-    print unpickled_data
-    results = dna_analysis(unpickled_data)
-    print results
-    send_response(c,results)
-    #except socket.error as e:
-     #   print('Error: {0}'.format(e))
-    c.close()
+    while 1:
+        (c,a) = s_ssl.accept()
+        print('Got connection', c, a)
+        data = get_data(c)
+        #print data
+        unpickled_data = Pickle.loads(data)
+        print unpickled_data
+        results = dna_analysis(unpickled_data)
+        print results
+        send_response(c,results)
+        #except socket.error as e:
+         #   print('Error: {0}'.format(e))
+        c.close()
 
 def dna_analysis(data_list):
 
@@ -81,8 +82,6 @@ def send_response(client_sock, results):
     length = pack('>Q', len(pickled_response))
     client_sock.sendall(length)
     client_sock.sendall(pickled_response)
-
-
 
 dna_server(('', 8082))
 
