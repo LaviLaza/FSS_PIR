@@ -26,7 +26,7 @@ def main():
     parser = argparse.ArgumentParser(description='DNA secret sharing app client')
     parser.add_argument('-f',help='the full path of the DNA file', required=True, dest='file_name')
     parser.add_argument('-s', help='server 2 IP  - #.#.#.#',required=True, dest='server_ips',nargs=2)
-    parser.add_argument('-d', help='max distance off of the client DNA', dest='dist',required=False)
+    parser.add_argument('-d', help='max distance off of the client DNA', dest='dist',required=False, type=int)
     args = vars(parser.parse_args())
     print (args['dist'])
     dna = load_file(args['file_name'])
@@ -53,6 +53,9 @@ def main():
     comm_client_2 = Comm_client(args['server_ips'][1], tree_root=secret_share_tree, seed=seed1,
                                   tbit='1', sec_param=constant.SEC_PARAM)
     comm_client_1.start()
+
+    # comm_client_1.run()
+    # comm_client_2.run()
     comm_client_2.start()
 
     comm_client_1.join()
