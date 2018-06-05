@@ -43,14 +43,14 @@ def main():
     # try:
     comm_client_1 = Comm_client(k=k0,tbit='0', server_address=args['server_ips'][0], distance=args['dist'])
     comm_client_2 = Comm_client(k=k1,tbit='1',server_address=args['server_ips'][1], distance=args['dist'])
-    # comm_client_1.start()
+    comm_client_1.start()
 
-    comm_client_1.run()
-    comm_client_2.run()
-    # comm_client_2.start()
+    # comm_client_1.run()
+    # comm_client_2.run()
+    comm_client_2.start()
 
-    # comm_client_1.join()
-    # comm_client_2.join()
+    comm_client_1.join()
+    comm_client_2.join()
 
     logging.info("Retrieving analysis from servers.")
     server1_analysis = comm_client_1.analysis

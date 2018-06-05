@@ -10,9 +10,6 @@ from bitstring import BitArray
 from itertools import chain, combinations, product
 import logging
 
-logging.basicConfig(format='%(asctime)s %(filename)s %(funcName)s %(levelname)s %(message)s',
-                    datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO)
-
 KEYFILE = constant.SERVER_KEY_FILE_PATH
 CERTFILE = constant.SERVER_CERT_FILE_PATH
 
@@ -151,5 +148,11 @@ def hamming_ball(s, n, alphabet):
     return chain.from_iterable(hamming_circle(s, i, alphabet)
                                for i in range(n + 1))
 
-dna_server(('', 8082))
+
+
+
+if __name__ == "__main__":
+    logging.basicConfig(format='%(asctime)s %(filename)s %(funcName)s %(levelname)s %(message)s',
+                        datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO)
+    dna_server(('', 8082))
 
