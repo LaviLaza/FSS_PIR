@@ -1,31 +1,26 @@
 
 import socket, ssl
-from DNA_APP.constants import constant
+from DNA_APP_DPF.constants import constant
 import cPickle as Pickle
 import threading
 from struct import pack, unpack
 import logging
-import sys
 
 class Comm_client(threading.Thread):
 
-    def __init__(self,server_address, tree_root, seed, tbit, sec_param):
+    def __init__(self,k, server_address, tbit, distance):
 
         threading.Thread.__init__(self)
         self.server_address = server_address
-        self.tree_root = tree_root
-        self.seed = seed
         self.tbit = tbit
-        self.sec_param = sec_param
-        self.analysis = None
-
+        self.key = k
         self.port = constant.PORT
+        self.analysis = None
+        self.distance = distance
 
 
 
     def run(self):
-
-        sys.setrecursionlimit(50000)
 
 
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -36,11 +31,12 @@ class Comm_client(threading.Thread):
 
         ssl_sock.connect((self.server_address, self.port))
 
-        pickled_data = Pickle.dumps([self.tree_root,self.seed,self.tbit,self.sec_param])
+        pickled_data = Pickle.dumps([self.key, self.tbit, self.distance, constant.SEC_PARAM])
 
-        logging.info("Number of bytes sent to server: %d" % (sys.getsizeof(pickled_data)))
+        # print "size of pickled data is: %d" %(len(pickled_data))
 
         length = pack('>Q', len(pickled_data))
+        logging.info("Number of bytes send to server: %d" %(len(pickled_data)))
         ssl_sock.sendall(length)
         ssl_sock.sendall(pickled_data)
 
@@ -55,8 +51,11 @@ class Comm_client(threading.Thread):
 
     def get_data(self, s):
 
+        logging.info("Getting analysis from server")
+
         data_size = s.recv(8)
         (length,) = unpack('>Q', data_size)
+        logging.info("Number of bytes received from server: %s" %(length))
         data = b''
         while len(data) < length:
             to_read = length - len(data)

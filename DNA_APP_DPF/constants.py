@@ -16,7 +16,7 @@ class constant:
 
     SEC_PARAM = 256
 
-    CHECKS_FILE_PATH = '../DNA_APP/checks.json'
+    CHECKS_FILE_PATH = '../checks.json'
 
     SERVER_KEY_FILE_PATH = '/Users/admin1/Documents/keys/key.pem'
 

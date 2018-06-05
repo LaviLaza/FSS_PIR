@@ -7,10 +7,14 @@ from DTs.Dtree_server import Eval
 import json
 from struct import unpack, pack
 from bitstring import BitArray
+import logging
+import sys
 
 KEYFILE = constant.SERVER_KEY_FILE_PATH
 CERTFILE = constant.SERVER_CERT_FILE_PATH
 
+logging.basicConfig(format='%(asctime)s %(filename)s %(funcName)s %(levelname)s %(message)s',
+                    datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO)
 
 def convert_dna_to_bitstring(check):
     dna_bitstring = check.replace('A', constant.DNA_DICT['A'])
@@ -31,7 +35,7 @@ def get_data(s):
             to_read = length - len(data)
             data += s.recv(4096 if to_read > 4096 else to_read)
     except Exception as e:
-        print e.message()
+        s.close()
 
 
     #print('Connection closed')
@@ -48,18 +52,19 @@ def dna_server(address):
 
     #try:
     while 1:
-        (c,a) = s_ssl.accept()
-        print('Got connection', c, a)
-        data = get_data(c)
-        #print data
-        unpickled_data = Pickle.loads(data)
-        print unpickled_data
-        results = dna_analysis_single_result(unpickled_data)
-        print results
-        send_response(c,results)
-        #except socket.error as e:
-         #   print('Error: {0}'.format(e))
-        c.close()
+        try:
+            (c,a) = s_ssl.accept()
+            logging.info('Got connection %s %s' %(c, a))
+            data = get_data(c)
+            #print data
+            unpickled_data = Pickle.loads(data)
+            logging.info(unpickled_data)
+            results = dna_analysis_single_result(unpickled_data)
+            send_response(c,results)
+            #except socket.error as e:
+             #   print('Error: {0}'.format(e))
+        finally:
+            c.close()
 
 def dna_analysis_single_result(data_list):
 
@@ -69,14 +74,19 @@ def dna_analysis_single_result(data_list):
         checks = check_file.readline()
         checks_dict = json.loads(checks)
     max_check = max([int(i) for i in checks_dict.keys()])
-    analysis_sum = BitArray(int=0, length=data_list[3] * max_check)
+    analysis_sum = BitArray(int=0, length=data_list[3] + max_check)
+
+    logging.info("Server analysis started")
 
     for check_num, check_dna in checks_dict.items():
         check_bits = convert_dna_to_bitstring(check_dna)
+        logging.info("Eval started")
         analysis = Eval(x=check_bits, tree_root=data_list[0], seed=data_list[1], T=data_list[2],
                         sec_param=data_list[3])
-        print int(check_num)
-        analysis_sum ^= BitArray(int=(BitArray(bin=analysis).int * int(check_num)),length=data_list[3]  * max_check)
+        logging.info("Eval done")
+        analysis_sum ^= BitArray(int=(BitArray(bin=analysis).int << int(check_num)),length=data_list[3] + max_check)
+
+    logging.info("Server analysis done")
 
     return analysis_sum.bin
 
@@ -99,7 +109,7 @@ def dna_analysis_percentage(data_list):
 def send_response(client_sock, results):
 
     pickled_response = Pickle.dumps(results)
-    print len(pickled_response)
+    logging.info("Size of data sent to client %d" %(sys.getsizeof(pickled_response)))
 
     length = pack('>Q', len(pickled_response))
     client_sock.sendall(length)

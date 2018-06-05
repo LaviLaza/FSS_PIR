@@ -18,6 +18,7 @@ def generate_DT(tree_root, sec_param):
 
     queue = Queue.Queue()
     queue.put(tree_root)
+    counter = 0
 
     while not queue.empty():
         node = queue.get()
@@ -150,7 +151,7 @@ def calculate(node, sec_param):
 
     node.cw = CW
 
-    print CW['0']
-    print CW['1']
-    print '--------------'
+    # print CW['0']
+    # print CW['1']
+    # print '--------------'
 

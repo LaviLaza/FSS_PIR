@@ -1,0 +1,3 @@
+
+class InvalidDNAException(Exception):
+    pass

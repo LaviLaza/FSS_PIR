@@ -11,7 +11,7 @@ TODO: Check all zero seed.
 import random
 from bitstring import BitArray
 from prg import prg
-
+import logging
 
 
 def gen(sec_param, a):
@@ -29,6 +29,8 @@ def gen(sec_param, a):
               and the correction words (key: #, the key is an integer of the FSS tree lelvel.
 
     """
+
+    logging.info("Generating correction words structure.")
 
     # Generating random seeds for each of the keys
     cryptogen = random.SystemRandom()
@@ -82,8 +84,8 @@ def gen(sec_param, a):
         T_cw['1'] = S_T['0']['1']['T'] ^ S_T['1']['1']['T'] ^ Keep_Lose
 
         # Setting the keys for the current level
-        K_0[i] = {'CW': S_cw, '0': T_cw['0'], '1': T_cw['1']}
-        K_1[i] = {'CW': S_cw, '0': T_cw['0'], '1': T_cw['1']}
+        K_0[i] = {'CW': S_cw.bin, '0': T_cw['0'].bin, '1': T_cw['1'].bin}
+        K_1[i] = {'CW': S_cw.bin, '0': T_cw['0'].bin, '1': T_cw['1'].bin}
 
         # Calculating the seeds based on the calculated correction word
         seed_srv_0 = (S_T['0'][Keep_Lose.bin]['S'] ^
@@ -98,12 +100,29 @@ def gen(sec_param, a):
                                                 BitArray(bin=((T_cw[Keep_Lose.bin] * abs(T_srv_1.int)).bin).zfill(1))
 
 
-        print "%d   S0_int: %s , S0: %s ,  t0: %s,  cw: %s, | S1_int: %s , S1: %s ,  t1: %s,  cw: %s" \
-              %(i,seed_srv_0.int,seed_srv_0.bin, T_srv_0, S_cw.bin,seed_srv_1.int ,seed_srv_1.bin, T_srv_1, S_cw.bin)
+        # print "%d   S0_int: %s , S0: %s ,  t0: %s,  cw: %s, | S1_int: %s , S1: %s ,  t1: %s,  cw: %s" \
+        #       %(i,seed_srv_0.int,seed_srv_0.bin, T_srv_0, S_cw.bin,seed_srv_1.int ,seed_srv_1.bin, T_srv_1, S_cw.bin)
 
         seed_srv_1 = seed_srv_1.int
         seed_srv_0 = seed_srv_0.int
-    return K_0, K_1
+
+    # S0 S1_r  S1 S0_r 1
+    # A S1_r   A  S0_r 1
+    cryptogen = random.SystemRandom()
+    seed = cryptogen.randrange(2 ** sec_param)
+    random.seed(seed)
+    seed = random.getrandbits(seed.bit_length())
+    randomness = "{0:b}".format(seed).zfill(sec_param)
+
+
+    final_cw = (BitArray(int=seed_srv_1 ,length=sec_param) ^ BitArray(int=seed_srv_0 ,length=sec_param) ^
+                BitArray(bin=randomness)).bin
+
+
+    K_0['final_cw'] = final_cw
+    K_1['final_cw'] = final_cw
+
+    return K_0, K_1, randomness
 
 if __name__ == "__main__":
     print gen(5, '1010')

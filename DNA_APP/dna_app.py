@@ -11,8 +11,9 @@ import argparse
 import logging
 from client import DNA_App_Client, InvalidDNAException
 from comm.comm_client import Comm_client
-import sys
 from bitstring import BitArray
+from math import log
+import sys
 
 
 
@@ -28,15 +29,16 @@ def main():
     parser.add_argument('-s', help='server 2 IP  - #.#.#.#',required=True, dest='server_ips',nargs=2)
     parser.add_argument('-d', help='max distance off of the client DNA', dest='dist',required=False, type=int)
     args = vars(parser.parse_args())
-    print (args['dist'])
     dna = load_file(args['file_name'])
     try:
         Client = DNA_App_Client(dna)
-        if args['dist']:
+        if args['dist'] is not None:
+            logging.info("Building distance tree")
             secret_share_tree, seed0, seed1 = Client.build_d_distance_trees(args['dist'])
         else:
+            logging.info("Building the tree")
             secret_share_tree, seed0, seed1 = Client.build_secret_share_trees()
-
+        logging.info("Done building tree")
 
     except InvalidDNAException:
         logging.error("The input DNA string is invalid, please check DNA string in file")
@@ -48,24 +50,31 @@ def main():
     # add corresponding items in each thread
 
     # try:
+    logging.info("Sending data to servers")
     comm_client_1 = Comm_client(args['server_ips'][0], tree_root=secret_share_tree, seed=seed0,
                                     tbit='0', sec_param=constant.SEC_PARAM)
     comm_client_2 = Comm_client(args['server_ips'][1], tree_root=secret_share_tree, seed=seed1,
                                   tbit='1', sec_param=constant.SEC_PARAM)
-    # comm_client_1.start()
+    comm_client_1.start()
 
-    comm_client_1.run()
-    comm_client_2.run()
-    # comm_client_2.start()
+    # comm_client_1.run()
+    # comm_client_2.run()
+    comm_client_2.start()
 
-    # comm_client_1.join()
-    # comm_client_2.join()
+    comm_client_1.join()
+    comm_client_2.join()
 
     server1_analysis = comm_client_1.analysis
     server2_analysis = comm_client_2.analysis
 
+    logging.info("Analyzing results")
+
     analysis = (BitArray(bin=server1_analysis) ^ BitArray(bin=server2_analysis)).int
-    print 'The client DNA matches disease # : %d' %(analysis)
+    if analysis == 0:
+        print "No disease found."
+    else:
+        analysis = log(analysis,2)
+        print 'The client DNA matches disease # : %d' %(analysis)
 
 
     # for key, index in zip(server1_analysis,range(0,len(server1_analysis))):

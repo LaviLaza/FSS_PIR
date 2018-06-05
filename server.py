@@ -9,7 +9,7 @@ Date: 10/1/18
 from bitstring import BitArray
 from prg import prg
 
-def eval(b,K,x,sec_param):
+def eval(b,K,x,sec_param, check_num):
 
     """The function evaluates the received function (K) on a given value x
 
@@ -33,7 +33,7 @@ def eval(b,K,x,sec_param):
 
     tree_depth = len(x)
 
-    print '----------------eval--------------------'
+    # print '----------------eval--------------------'
 
     # Evaluating the node on the tree path determined by the value x
     for i in xrange(tree_depth):
@@ -50,18 +50,29 @@ def eval(b,K,x,sec_param):
         S = {}
         T = {}
 
+        CW = BitArray(bin=K[i]['CW'])
+        Tbit0 = BitArray(bin=K[i]['0'])
+        Tbit1 = BitArray(bin=K[i]['1'])
+
         # Correcting the seed and T flag bit based on the correction words in the key
-        S['0'] = S_T['0']['S'] ^ BitArray(bin=((K[i]['CW'] * abs(T_bit.int)).bin).zfill(sec_param))
-        S['1'] = S_T['1']['S'] ^ BitArray(bin=((K[i]['CW'] * abs(T_bit.int)).bin).zfill(sec_param))
-        T['0'] = S_T['0']['T'] ^ BitArray(bin=((K[i]['0'] * abs(T_bit.int)).bin).zfill(1))
-        T['1'] = S_T['1']['T'] ^ BitArray(bin=((K[i]['1'] * abs(T_bit.int)).bin).zfill(1))
+        S['0'] = S_T['0']['S'] ^ BitArray(bin=((CW * abs(T_bit.int)).bin).zfill(sec_param))
+        S['1'] = S_T['1']['S'] ^ BitArray(bin=((CW * abs(T_bit.int)).bin).zfill(sec_param))
+        T['0'] = S_T['0']['T'] ^ BitArray(bin=((Tbit0 * abs(T_bit.int)).bin).zfill(1))
+        T['1'] = S_T['1']['T'] ^ BitArray(bin=((Tbit1 * abs(T_bit.int)).bin).zfill(1))
 
         # Updating the values for the next evaluation
         cur_item = S[x[i]].bin
         seed = S[x[i]].int
         T_bit = T[x[i]]
 
-        print "%d   S%s: %d , S_%s: %s ,  t%s: %s,  cw: %s" %(i,b,seed,b,cur_item,b, T_bit, K[i]['CW'])
+        if i == (len(x) - 1):
+
+            final_cw = BitArray(bin=K['final_cw'])
+            check_bits = BitArray(int=check_num,length=sec_param)
+            cur_item = S[x[i]] ^ BitArray(bin=(((final_cw ^ check_bits) * abs(T_bit.int)).bin).zfill(sec_param))
+
+
+        # print "%d   S%s: %d , S_%s: %s ,  t%s: %s,  cw: %s" %(i,b,seed,b,cur_item,b, T_bit, K[i]['CW'])
 
     # Returning the bitstring of the last evaluated node
     return cur_item
